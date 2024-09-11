@@ -1,0 +1,142 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  subscription Subscription?
+  users        User[]
+  apartments   Apartment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum Plan {
+  BASIC
+  PRO
+  PREMIUM
+}
+
+enum RoleType {
+  PLATFORM_ADMIN
+  SUPER_ADMIN
+  ADMIN
+  TENANT
+}
+
+model Subscription {
+  id        Int       @id @default(autoincrement())
+  plan      Plan
+  tenantId  Int       @unique
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  startDate DateTime
+  endDate   DateTime
+  active    Boolean   @default(true)
+  Invoice   Invoice[]
+}
+
+model User {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  email              String               @unique
+  password           String // hashed password
+  tenantId           Int? // tenantId es opcional para PLATFORM_ADMIN
+  tenant             Tenant?              @relation(fields: [tenantId], references: [id])
+  roles              UserRole[] // Relación con múltiples roles
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  Rental             Rental[]
+  Payment            Payment[]
+  MaintenanceRequest MaintenanceRequest[]
+  isPlatformAdmin    Boolean              @default(false)
+}
+
+model Apartment {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  address            String
+  owner              String // Nombre del propietario legal del apartamento
+  tenantId           Int
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  rentals            Rental[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  MaintenanceRequest MaintenanceRequest[]
+}
+
+model Rental {
+  id          Int       @id @default(autoincrement())
+  startDate   DateTime
+  endDate     DateTime
+  rentAmount  Float
+  apartmentId Int
+  apartment   Apartment @relation(fields: [apartmentId], references: [id])
+  tenantId    Int
+  tenant      User      @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Payment     Payment[]
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  paymentDate DateTime @default(now())
+  rentalId    Int
+  rental      Rental   @relation(fields: [rentalId], references: [id])
+  tenantId    Int
+  tenant      User     @relation(fields: [tenantId], references: [id])
+}
+
+model MaintenanceRequest {
+  id          Int               @id @default(autoincrement())
+  description String
+  status      MaintenanceStatus @default(PENDING)
+  apartmentId Int
+  apartment   Apartment         @relation(fields: [apartmentId], references: [id])
+  tenantId    Int
+  tenant      User              @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+enum MaintenanceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Invoice {
+  id             Int          @id @default(autoincrement())
+  subscriptionId Int
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  amount         Float
+  dueDate        DateTime
+  paid           Boolean      @default(false)
+  issuedAt       DateTime     @default(now())
+}
+
+model Role {
+  id    Int        @id @default(autoincrement())
+  name  RoleType   @unique // PLATFORM_ADMIN, SUPER_ADMIN, ADMIN, TENANT
+  users UserRole[]
+}
+
+model UserRole {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId]) // Asegura que no haya duplicados de rol por usuario
+}

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "target": "ESNext",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules", "prisma", "dist"]
+}
