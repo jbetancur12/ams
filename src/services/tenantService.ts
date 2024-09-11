@@ -1,21 +1,13 @@
-import { PrismaClient, Tenant } from '@prisma/client';
+// tenant.service.ts
 
-const prisma = new PrismaClient();
+import {  Tenant, Prisma } from '@prisma/client';
+import { BaseService } from './baseService';
+import { db } from '../utils/db.server';
 
-export class TenantService {
-  async createTenant(name: string, email: string): Promise<Tenant> {
-    try {
-      const tenant = await prisma.tenant.create({
-        data: {
-          name,
-          email,
-        },
-      });
-      return tenant;
-    } catch (error:any) {
-      throw new Error(`Error creando el tenant: ${error.message}`);
-    }
+export class TenantService extends BaseService<Tenant, Prisma.TenantCreateInput, Prisma.TenantUpdateInput> {
+  constructor() {
+    super(db, db.tenant);
   }
 
-  // Aquí puedes añadir otros métodos relacionados con Tenant
+  // Aquí puedes añadir métodos específicos de Tenant si es necesario
 }
