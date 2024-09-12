@@ -3,11 +3,25 @@ import { Request, Response, NextFunction } from 'express';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { sendBadRequestResponse, sendErrorResponse } from '../utils/responseHandler';
 import { config } from '../config/config';
+import { ZodError } from 'zod';
 
 export const errorHandler = (error: unknown, request: Request, response: Response, next: NextFunction) => {
   // Log the error stack for debugging purposes
   if (config.APP_ENV === 'development') {
     console.error(error instanceof Error ? error.stack : error);
+  }
+
+  // Manejo de errores de validación Zod
+  if (error instanceof ZodError) {
+    const formattedErrors = error.errors.map((err) => ({
+      path: err.path.join('.'),
+      message: err.message,
+    }));
+
+    return sendBadRequestResponse(response, {
+      message: 'Error de validación',
+      errors: formattedErrors,
+    });
   }
 
   // Handle known Prisma errors
