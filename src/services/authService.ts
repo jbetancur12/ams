@@ -24,23 +24,19 @@ export class AuthService {
         password: hashedPassword,
         name,
         isPlatformAdmin: true, // Solo registra usuarios con el rol de administrador de la plataforma
-        roles: {
-            create: {
-              role: {
-                connect: { name: RoleType.PLATFORM_ADMIN }
-              }
-            }
-          }
+        role: RoleType.PLATFORM_ADMIN
       },
     });
     return admin;
   }
 
   async loginAdmin(email: string, password: string): Promise<string | null> {
+   
     const admin = await prisma.user.findUnique({
-      where: { email },
-      include: { roles: true }, // Incluir roles para comprobar si es un admin
+      where: { email }
     });
+
+   
     
     if (!admin || !admin.isPlatformAdmin) {
       throw new Error('Usuario no autorizado o no encontrado');
@@ -51,7 +47,31 @@ export class AuthService {
       throw new Error('Credenciales inválidas');
     }
 
-    const token = jwt.sign({ userId: admin.id, email: admin.email, roles: admin.roles }, config.JWT_SECRET, {
+    const token = jwt.sign({ userId: admin.id, email: admin.email, roles: admin.role }, config.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+
+    return token;
+  }
+
+  async login(email: string, password: string): Promise<string | null> {
+   
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+   
+    
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Credenciales inválidas');
+    }
+
+    const token = jwt.sign({ userId: user.id, email: user.email, roles: user.role }, config.JWT_SECRET, {
       expiresIn: '1h',
     });
 

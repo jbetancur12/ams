@@ -37,11 +37,7 @@ async function main() {
         password: hashedPassword,
         name: 'Platform Admin',
         isPlatformAdmin: true,
-        roles: {
-          create: {
-            role: { connect: { name: RoleType.PLATFORM_ADMIN } },
-          },
-        },
+        role: RoleType.PLATFORM_ADMIN, // Asigna el rol directamente
       },
     });
 

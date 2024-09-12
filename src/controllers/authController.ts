@@ -21,9 +21,25 @@ export const registerPlatformAdmin = async (req: Request, res: Response) => {
 // Inicio de sesión de administradores
 export const loginAdmin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
+ 
   try {
     const token = await authService.loginAdmin(email, password);
+    if (!token) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+    res.status(200).json({ message: 'Inicio de sesión exitoso', token });
+  } catch (error) {
+    res.status(400).json({ message: 'Error en el inicio de sesión', error });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  console.log(email)
+ 
+  try {
+    const token = await authService.login(email, password);
     if (!token) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }

@@ -33,9 +33,9 @@ export const getTenantById = async (req: Request, res: Response) => {
 export const createTenant = async (req: Request, res: Response) => {
   try {
     // Verificar si el usuario es superadmin
-    const userRoles = req.user?.roles; // Suponiendo que se establece en el middleware de autorización
+    const userRole = req.user?.role; // Suponiendo que se establece en el middleware de autorización
     
-const isSuperAdmin = userRoles && Array.isArray(userRoles) && userRoles.some(role => role.name === RoleType.PLATFORM_ADMIN);
+const isSuperAdmin = userRole && userRole === RoleType.PLATFORM_ADMIN;
 
 
     if (!isSuperAdmin) {
