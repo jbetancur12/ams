@@ -24,6 +24,7 @@ model Owner {
   properties   Property[]
   subscription Subscription?
   tenants      Tenant[]
+  users        User[]        @relation("OwnerUsers")
 }
 
 model Tenant {
@@ -140,11 +141,12 @@ model User {
   ownerId            Int?
   tenantId           Int?
   MaintenanceRequest MaintenanceRequest[]
-  owner              Owner?
+  owner              Owner?               @relation("OwnerUsers", fields: [ownerId], references: [id])
   Payment            Payment[]
   PlatformAdmin      PlatformAdmin[]
   Rental             Rental[]
   tenant             Tenant?
+  Owner              Owner?
 }
 
 model Rental {
