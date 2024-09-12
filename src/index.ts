@@ -1,4 +1,3 @@
-
 // import 'module-alias/register';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -6,11 +5,9 @@ import cors from 'cors';
 
 import authRoutes from './routes/authRoutes';
 
-
-import {errorHandler} from './middlewares/errorMiddleware';
+import { errorHandler } from './middlewares/errorMiddleware';
 import cookieParser from 'cookie-parser';
 
-import apartmentRoutes from './routes/apartmentRoutes';
 import rentalRoutes from './routes/rentalRoutes';
 import maintenanceRoutes from './routes/maintenanceRoutes';
 import userRoutes from './routes/userRoutes';
@@ -39,11 +36,11 @@ app.use(cookieParser());
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
-app.use('/api/apartments',  apartmentRoutes);
-app.use('/api/rentals',  rentalRoutes);
-app.use('/api/maintenance',  maintenanceRoutes);
-app.use('/api/users',  userRoutes);
-app.use('/api/tenants',  tenantRoutes);
+
+app.use('/api/rentals', rentalRoutes);
+app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/tenants', tenantRoutes);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
