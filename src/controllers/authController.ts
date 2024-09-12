@@ -5,18 +5,18 @@ import { userSchema } from '../types/zod';
 
 const authService = new AuthService();
 
-export const registerPlatformAdmin = async (req: Request, res: Response) => {
+export const registerPlatformAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
   try {
     const admin = await authService.registerPlatformAdmin(email, password, name);
     res.status(201).json({ message: 'Administrador registrado con éxito', admin });
   } catch (error) {
-    res.status(400).json({ message: 'Error al registrar el administrador', error });
+    next(error);
   }
 };
 
 // Inicio de sesión de administradores
-export const loginAdmin = async (req: Request, res: Response) => {
+export const loginAdmin = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
   try {
@@ -26,11 +26,11 @@ export const loginAdmin = async (req: Request, res: Response) => {
     }
     res.status(200).json({ message: 'Inicio de sesión exitoso', token });
   } catch (error) {
-    res.status(400).json({ message: 'Error en el inicio de sesión', error });
+    next(error);
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   try {
     const token = await authService.login(email, password);
@@ -39,12 +39,7 @@ export const login = async (req: Request, res: Response) => {
     }
     res.status(200).json({ message: 'Inicio de sesión exitoso', token });
   } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ message: 'Error en el inicio de sesión', error: error.message });
-    } else {
-      // Si el error no es una instancia de Error, envía un mensaje genérico
-      res.status(400).json({ message: 'Error en el inicio de sesión', error: 'Error desconocido' });
-    }
+    next(error);
   }
 };
 

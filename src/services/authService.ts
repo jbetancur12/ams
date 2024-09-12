@@ -50,27 +50,23 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<string | null> {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { email },
-      });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-      if (!user) {
-        throw new Error('Usuario no encontrado');
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        throw new Error('Credenciales inválidas');
-      }
-
-      const token = jwt.sign({ userId: user.id, email: user.email, roles: user.role }, config.JWT_SECRET, {
-        expiresIn: '1h',
-      });
-
-      return token;
-    } catch (error) {
-      throw error;
+    if (!user) {
+      throw new Error('Usuario no encontrado');
     }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Credenciales inválidas');
+    }
+
+    const token = jwt.sign({ userId: user.id, email: user.email, roles: user.role }, config.JWT_SECRET, {
+      expiresIn: '1h',
+    });
+
+    return token;
   }
 }
