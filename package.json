@@ -1,7 +1,7 @@
 {
   "name": "apartment-management",
   "version": "1.0.0",
-  "description": "",
+  "description": "Apartment Management System",
   "main": "index.js",
   "prisma": {
     "seed": "node --require esbuild-register prisma/seed.ts"
