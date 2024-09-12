@@ -4,14 +4,15 @@ import { JsonWebTokenError } from 'jsonwebtoken';
 import { sendBadRequestResponse, sendErrorResponse } from '../utils/responseHandler';
 import { config } from '../config/config';
 import { ZodError } from 'zod';
+import { CustomError } from '../services/customError';
 
 export const errorHandler = (error: unknown, request: Request, response: Response, next: NextFunction) => {
-  // Log the error stack for debugging purposes
+  // Log the error stack for debugging in development mode
   if (config.APP_ENV === 'development') {
     console.error(error instanceof Error ? error.stack : error);
   }
 
-  // Manejo de errores de validación Zod
+  // Zod validation error handling
   if (error instanceof ZodError) {
     const formattedErrors = error.errors.map((err) => ({
       path: err.path.join('.'),
@@ -24,27 +25,44 @@ export const errorHandler = (error: unknown, request: Request, response: Respons
     });
   }
 
-  // Handle known Prisma errors
+  // Prisma errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     const res =
       config.APP_ENV === 'development'
-        ? { error: 'Prisma Error occurred', details: error.message }
+        ? { error: 'Prisma Error', details: error.message }
         : { error: 'Error occurred' };
 
     return sendBadRequestResponse(response, res);
   }
 
-  // Handle Json Web Token Error
+  if (error instanceof Prisma.PrismaClientValidationError) {
+    const res =
+      config.APP_ENV === 'development'
+        ? { error: 'Prisma Validation Error', details: error.message }
+        : { error: 'Error occurred' };
+
+    return sendBadRequestResponse(response, res);
+  }
+
+  // JWT errors
   if (error instanceof JsonWebTokenError) {
     const res =
       config.APP_ENV === 'development'
-        ? { error: 'Json Web Token Error occurred', message: error.message }
-        : { error: 'Error occurred' };
+        ? { error: 'JWT Error', message: error.message }
+        : { error: 'Authentication failed' };
 
     return sendBadRequestResponse(response, res);
   }
 
-  // Handle general errors
+  if (error instanceof CustomError) {
+    return sendBadRequestResponse(response, {
+      message: error.message,
+      details: error.details,
+      statusCode: error.statusCode,
+    });
+  }
+
+  // General errors
   if (error instanceof Error) {
     const res =
       config.APP_ENV === 'development'
@@ -54,7 +72,7 @@ export const errorHandler = (error: unknown, request: Request, response: Respons
     return sendErrorResponse(response, res);
   }
 
-  // If the error is not an instance of Error, handle it as a generic internal error
+  // Fallback for unknown errors
   const res =
     config.APP_ENV === 'development'
       ? { message: 'Unknown Error', details: error }

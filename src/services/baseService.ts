@@ -12,13 +12,7 @@ export class BaseService<T, CInput, UInput> {
   }
 
   async create(data: CInput): Promise<T> {
-   
-    try {
-      
-      return await this.model.create({ data });
-    } catch (error: any) {
-      throw new Error(`Error creando el recurso: ${error.message}`);
-    }
+    return await this.model.create({ data });
   }
 
   async getAll(options?: Prisma.UserFindManyArgs): Promise<T[]> {

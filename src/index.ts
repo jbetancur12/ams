@@ -12,6 +12,7 @@ import rentalRoutes from './routes/rentalRoutes';
 import maintenanceRoutes from './routes/maintenanceRoutes';
 import userRoutes from './routes/userRoutes';
 import tenantRoutes from './routes/tenantRoutes';
+import ownerRoutes from './routes/ownerRoutes';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -41,6 +42,7 @@ app.use('/api/rentals', rentalRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/tenants', tenantRoutes);
+app.use('/api/owners', ownerRoutes);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
