@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser';
 
 import rentalRoutes from './routes/rentalRoutes';
 import maintenanceRoutes from './routes/maintenanceRoutes';
-import userRoutes from './routes/userRoutes';
+import userRoutes from './routes/user.routes';
 import tenantRoutes from './routes/tenantRoutes';
 import ownerRoutes from './routes/ownerRoutes';
 import ownerUserRoutes from './routes/ownerUser.routes';
