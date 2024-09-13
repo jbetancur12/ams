@@ -8,6 +8,30 @@ export class TenantService extends BaseService<Tenant, Prisma.TenantCreateInput,
   constructor() {
     super(db, db.tenant);
   }
+  async getAllbyOwnerId(ownerId: number): Promise<Tenant[]> {
+    try {
+      return await db.tenant.findMany({
+        where: { ownerId },
+      });
+    } catch (error: any) {
+      throw new Error(`Error obteniendo los tenants: ${error.message}`);
+    }
+  }
+
+  async getByEmail(email: string, ownerId: number): Promise<Tenant | null> {
+    try {
+      return await db.tenant.findUnique({
+        where: {
+          email_ownerId: {
+            email,
+            ownerId,
+          },
+        },
+      });
+    } catch (error: any) {
+      throw new Error(`Error obteniendo el tenant: ${error.message}`);
+    }
+  }
 
   // Aquí puedes añadir métodos específicos de Tenant si es necesario
 }

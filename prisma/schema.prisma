@@ -68,6 +68,8 @@ model Tenant {
   units               Unit[]
   maintenanceRequests MaintenanceRequest[]
   payments            Payment[]
+
+  @@unique([email, ownerId])
 }
 
 model Property {
