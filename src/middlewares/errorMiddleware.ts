@@ -5,11 +5,12 @@ import { sendBadRequestResponse, sendErrorResponse } from '../utils/responseHand
 import { config } from '../config/config';
 import { ZodError } from 'zod';
 import { CustomError } from '../services/customError';
+import log from '../utils/logger';
 
 export const errorHandler = (error: unknown, request: Request, response: Response, next: NextFunction) => {
   // Log the error stack for debugging in development mode
   if (config.APP_ENV === 'development') {
-    console.error(error instanceof Error ? error.stack : error);
+    log.error(error instanceof Error ? error.stack : error);
   }
 
   // Zod validation error handling

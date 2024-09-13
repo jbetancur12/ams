@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 
+import logger from './utils/logger';
 import authRoutes from './routes/authRoutes';
 
 import { errorHandler } from './middlewares/errorMiddleware';
@@ -50,5 +51,5 @@ app.use('/api/owners-users', ownerUserRoutes);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Listening on PORT ${PORT}`);
+  logger.info(`Listening on PORT ${PORT}`);
 });

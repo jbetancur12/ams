@@ -1,6 +1,7 @@
 import { Owner, Prisma } from '@prisma/client';
 import { BaseService } from './baseService';
 import { db } from '../utils/db.server';
+import log from '../utils/logger';
 
 export class OwnerService extends BaseService<Owner, Prisma.OwnerCreateInput, Prisma.OwnerUpdateInput> {
   constructor() {
@@ -16,7 +17,6 @@ export class OwnerService extends BaseService<Owner, Prisma.OwnerCreateInput, Pr
           where: { ownerId: ownerId },
           select: { userId: true },
         });
-        console.log('🚀 ~ OwnerService ~ awaitdb.$transaction ~ ownerUsers:', ownerUsers);
 
         const userIds = ownerUsers.map((ownerUser) => ownerUser.userId);
 
@@ -35,9 +35,9 @@ export class OwnerService extends BaseService<Owner, Prisma.OwnerCreateInput, Pr
           where: { id: ownerId },
         });
       });
-      console.log('Owner, usuarios asociados y relaciones eliminadas exitosamente.');
+      log.info('Owner, usuarios asociados y relaciones eliminadas exitosamente.');
     } catch (error) {
-      console.error('Error al eliminar Owner, usuarios asociados y relaciones:', error);
+      log.error('Error al eliminar Owner, usuarios asociados y relaciones:', error);
       throw error; // Puedes lanzar el error para manejarlo en el controlador si es necesario
     }
   }
