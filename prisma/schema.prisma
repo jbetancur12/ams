@@ -12,33 +12,62 @@ model PlatformAdmin {
   userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Owner {
   id           Int           @id @default(autoincrement())
-  userId       Int           @unique
+  name         String        @unique
+  domain       String        @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  user         User          @relation(fields: [userId], references: [id])
   properties   Property[]
   subscription Subscription?
   tenants      Tenant[]
-  users        User[]        @relation("OwnerUsers")
+  users        OwnerUser[]
+}
+
+model OwnerUser {
+  ownerId   Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  owner     Owner    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([ownerId, userId]) // Llave primaria compuesta para evitar duplicados
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String
+  password      String
+  role          RoleType
+  ownerId       Int?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  ownerUsers    OwnerUser[] // Relación muchos a muchos con propietarios
+  platformAdmin PlatformAdmin[]
+
+  @@unique([email, ownerId]) // El correo es único por propietario para usuarios
 }
 
 model Tenant {
-  id         Int        @id @default(autoincrement())
-  userId     Int        @unique
-  ownerId    Int
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  contracts  Contract[]
-  invoices   Invoice[]
-  properties Property[]
-  owner      Owner      @relation(fields: [ownerId], references: [id])
-  user       User       @relation(fields: [userId], references: [id])
-  units      Unit[]
+  id                  Int                  @id @default(autoincrement())
+  name                String // Nombre del Tenant
+  email               String? // Si necesitas un correo electrónico
+  ownerId             Int
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  contracts           Contract[]
+  invoices            Invoice[]
+  properties          Property[]
+  owner               Owner                @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  rentals             Rental[]
+  units               Unit[]
+  maintenanceRequests MaintenanceRequest[]
+  payments            Payment[]
 }
 
 model Property {
@@ -50,8 +79,8 @@ model Property {
   updatedAt DateTime     @updatedAt
   tenantId  Int?
   contracts Contract[]
-  owner     Owner        @relation(fields: [ownerId], references: [id])
-  Tenant    Tenant?      @relation(fields: [tenantId], references: [id])
+  owner     Owner        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  Tenant    Tenant?      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   services  Service[]
   units     Unit[]
 }
@@ -68,8 +97,8 @@ model Unit {
   Rental             Rental[]
   services           Service[]
   contract           Contract[]
-  property           Property             @relation(fields: [propertyId], references: [id])
-  Tenant             Tenant?              @relation(fields: [tenantId], references: [id])
+  property           Property             @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  Tenant             Tenant?              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model Contract {
@@ -80,12 +109,12 @@ model Contract {
   propertyId Int
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  tenantId   Int?
-  property   Property   @relation(fields: [propertyId], references: [id])
-  Tenant     Tenant?    @relation(fields: [tenantId], references: [id])
+  tenantId   Int
+  property   Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   documents  Document[]
-  unit       Unit       @relation(fields: [unitId], references: [id])
-  unitId     Int        @unique // Permite que unitId sea opcional en caso de que no todos los contratos requieran unidad
+  unit       Unit       @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId     Int
 }
 
 model Document {
@@ -94,7 +123,7 @@ model Document {
   fileUrl    String
   contractId Int
   createdAt  DateTime @default(now())
-  contract   Contract @relation(fields: [contractId], references: [id])
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 }
 
 model Service {
@@ -103,8 +132,8 @@ model Service {
   included   Boolean
   propertyId Int?
   unitId     Int?
-  Property   Property? @relation(fields: [propertyId], references: [id])
-  Unit       Unit?     @relation(fields: [unitId], references: [id])
+  Property   Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  Unit       Unit?     @relation(fields: [unitId], references: [id], onDelete: Cascade)
 }
 
 model Invoice {
@@ -115,7 +144,7 @@ model Invoice {
   tenantId       Int
   subscriptionId Int?
   createdAt      DateTime      @default(now())
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
   tenant         Tenant        @relation(fields: [tenantId], references: [id])
 }
 
@@ -127,26 +156,7 @@ model Subscription {
   endDate   DateTime
   active    Boolean   @default(true)
   Invoice   Invoice[]
-  owner     Owner     @relation(fields: [ownerId], references: [id])
-}
-
-model User {
-  id                 Int                  @id @default(autoincrement())
-  name               String
-  email              String               @unique
-  password           String
-  role               RoleType
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  ownerId            Int?
-  tenantId           Int?
-  MaintenanceRequest MaintenanceRequest[]
-  owner              Owner?               @relation("OwnerUsers", fields: [ownerId], references: [id])
-  Payment            Payment[]
-  PlatformAdmin      PlatformAdmin[]
-  Rental             Rental[]
-  tenant             Tenant?
-  Owner              Owner?
+  owner     Owner     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Rental {
@@ -159,8 +169,8 @@ model Rental {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   payments   Payment[]
-  tenant     User      @relation(fields: [tenantId], references: [id])
-  apartment  Unit      @relation(fields: [unitId], references: [id])
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  unit       Unit      @relation(fields: [unitId], references: [id], onDelete: Cascade)
 }
 
 model Payment {
@@ -169,8 +179,8 @@ model Payment {
   paymentDate DateTime @default(now())
   rentalId    Int
   tenantId    Int
-  rental      Rental   @relation(fields: [rentalId], references: [id])
-  tenant      User     @relation(fields: [tenantId], references: [id])
+  rental      Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model MaintenanceRequest {
@@ -181,8 +191,8 @@ model MaintenanceRequest {
   tenantId    Int
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  tenant      User              @relation(fields: [tenantId], references: [id])
-  apartment   Unit              @relation(fields: [unitId], references: [id])
+  tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  apartment   Unit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
 }
 
 enum PropertyType {

@@ -1,6 +1,6 @@
 // tenant.service.ts
 
-import {  Tenant, Prisma } from '@prisma/client';
+import { Tenant, Prisma } from '@prisma/client';
 import { BaseService } from './baseService';
 import { db } from '../utils/db.server';
 

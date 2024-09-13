@@ -4,9 +4,11 @@ import { RoleType } from '@prisma/client';
 import { ownerSchema, ownerUserSchema } from '../types/zod';
 import { UserService } from '../services/userService';
 import { db } from '../utils/db.server';
+import { OwnerUserService } from '../services/ownerUser.service';
 
 const ownerService = new OwnerService();
 const userService = new UserService();
+const ownerUserService = new OwnerUserService();
 
 export const getOwners = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -33,8 +35,8 @@ export const getOwnerById = async (req: Request, res: Response, next: NextFuncti
 
 export const createOwner = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { body } = req;
-    const data = { ...body, role: RoleType.OWNER, password: 'ChangeMe' };
+    const { body: data } = req;
+
     // Verificar si el usuario es superadmin
     const userRole = req.user?.role; // Suponiendo que se establece en el middleware de autorización
 
@@ -44,20 +46,8 @@ export const createOwner = async (req: Request, res: Response, next: NextFunctio
       return res.status(403).json({ message: 'No tienes permiso para crear owners' });
     }
 
-    const result = await db.$transaction(async (prisma) => {
-      // Primero, crea el Usuario
-      const user = await userService.create({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        role: data.role,
-      });
-
-      const owner = await ownerService.create({
-        user: { connect: { id: user.id } },
-      });
-
-      await userService.update(user.id, { owner: { connect: { id: owner.id } } });
+    const result = await db.$transaction(async () => {
+      const owner = await ownerService.create(data);
       return owner;
     });
     return res.status(201).json(result);
@@ -84,12 +74,12 @@ export const updateOwner = async (req: Request, res: Response, next: NextFunctio
 export const deleteOwner = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const ownerId = Number(req.params.ownerId);
-    const owner = await ownerService.delete(ownerId);
-    if (owner) {
-      return res.status(200).json(owner);
-    } else {
+    const ownerExists = await ownerService.getById(ownerId);
+    if (!ownerExists) {
       return res.status(404).json({ message: 'Owner no encontrado' });
     }
+    const owner = await ownerService.deleteOwnerAndRelatedUsers(ownerId);
+    return res.status(200).json(owner);
   } catch (error) {
     next(error);
   }
@@ -100,6 +90,16 @@ export const createOwnUser = async (req: Request, res: Response, next: NextFunct
     const { body } = req;
     const ownerId = Number(req.params.ownerId);
 
+    // Verificar que el ownerId sea válido
+    if (isNaN(ownerId) || ownerId <= 0) {
+      return res.status(400).json({ message: 'El propietario no es válido' });
+    }
+
+    const userExists = await userService.getByEmail(body.email, ownerId);
+    if (userExists) {
+      return res.status(400).json({ message: 'El usuario ya existe' });
+    }
+
     const data = { ...body, password: 'ChangeMe' };
 
     // Verificar si el usuario es superadmin
@@ -109,20 +109,29 @@ export const createOwnUser = async (req: Request, res: Response, next: NextFunct
     const isOwner = userRole && userRole === RoleType.OWNER;
     const isSameOwner = userRole && id === ownerId;
 
-    if (!isOwner || !isSameOwner) {
+    if (!(isOwner && isSameOwner) && req.user?.role !== RoleType.PLATFORM_ADMIN) {
       return res.status(403).json({ message: 'No tienes permiso para crear usuarios' });
     }
 
-    // Primero, crea el Usuario
-    const user = await userService.createUser({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      role: data.role,
-      owner: { connect: { id: ownerId } },
+    const result = await db.$transaction(async () => {
+      // Primero, crea el Usuario
+      const user = await userService.createUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        ownerId,
+      });
+
+      await ownerUserService.create({
+        owner: { connect: { id: ownerId } },
+        user: { connect: { id: user.id } },
+      });
+
+      return user;
     });
 
-    return res.status(201).json(user);
+    return res.status(201).json(result);
   } catch (error) {
     next(error);
   }

@@ -15,9 +15,11 @@ export const userSchema = z.object({
 
 export const ownerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
+  domain: z.string().min(1, 'Domain is required'),
 });
 
 export const ownerUserSchema = ownerSchema.extend({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email address'),
   role: z.enum([RoleType.OWNER, RoleType.OWNER_ADMIN]),
 });

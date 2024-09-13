@@ -3,7 +3,6 @@ import { login, loginAdmin, registerPlatformAdmin, validateUserData } from '../c
 
 const router = express.Router();
 
-
 router.post('/register-platform-admin', validateUserData, registerPlatformAdmin);
 router.post('/login-admin', loginAdmin);
 router.post('/login', login);

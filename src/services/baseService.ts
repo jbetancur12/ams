@@ -1,6 +1,6 @@
 // base.service.ts
 
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export class BaseService<T, CInput, UInput> {
   protected prisma: PrismaClient;
@@ -15,9 +15,9 @@ export class BaseService<T, CInput, UInput> {
     return await this.model.create({ data });
   }
 
-  async getAll(options?: Prisma.UserFindManyArgs): Promise<T[]> {
+  async getAll(): Promise<T[]> {
     try {
-      return await this.model.findMany(options);
+      return await this.model.findMany();
     } catch (error: any) {
       throw new Error(`Error obteniendo recursos: ${error.message}`);
     }

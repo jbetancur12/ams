@@ -4,11 +4,10 @@ import { NextFunction, Request, Response } from 'express';
 import { UserService } from '../services/userService';
 import { userSchema } from '../types/zod';
 
-
 const userService = new UserService();
 
 export const createUser = async (req: Request, res: Response) => {
-  try {    
+  try {
     const user = await userService.create(req.body);
     res.status(201).json(user);
   } catch (error: any) {

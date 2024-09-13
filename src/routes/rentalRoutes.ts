@@ -3,7 +3,7 @@ import { getRentals } from '../controllers/rentalController';
 
 const router = Router();
 
-router.get('/',  getRentals);
+router.get('/', getRentals);
 
 // Añadir rutas para crear, actualizar, eliminar arrendamientos
 

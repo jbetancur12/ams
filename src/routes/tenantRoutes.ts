@@ -1,8 +1,14 @@
 import { Router } from 'express';
-import { createTenant, deleteTenant, getTenantById, getTenants, updateTenant, validateTenantData } from '../controllers/tenantController';
+import {
+  createTenant,
+  deleteTenant,
+  getTenantById,
+  getTenants,
+  updateTenant,
+  validateTenantData,
+} from '../controllers/tenantController';
 import { authorizeRoles } from '../middlewares/authorizationMiddleware';
 import { authenticateToken } from '../middlewares/authMiddleware';
-
 
 const router = Router();
 

@@ -3,7 +3,7 @@ import { getMaintenanceRequests } from '../controllers/maintenanceController';
 
 const router = Router();
 
-router.get('/',  getMaintenanceRequests);
+router.get('/', getMaintenanceRequests);
 
 // Añadir rutas para crear, actualizar, eliminar solicitudes de mantenimiento
 
