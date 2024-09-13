@@ -1,26 +1,28 @@
-import { Prisma,  User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { BaseService } from './baseService';
 import { db } from '../utils/db.server';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '../utils/helpers';
 
 export class UserService extends BaseService<User, Prisma.UserCreateInput, Prisma.UserUpdateInput> {
   constructor() {
     super(db, db.user);
   }
 
-
-
-async create(data: Prisma.UserCreateInput): Promise<User> {
+  async create(data: Prisma.UserCreateInput): Promise<User> {
     // Hash the password if provided
     if (data.password) {
-      const hashedPassword = await bcrypt.hash(data.password, 10);
-      data.password = hashedPassword;
-    }  
+      data.password = await hashPassword(data.password);
+    }
     return super.create(data);
   }
 
-
-  
+  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    // Hash the password if provided
+    if (data.password) {
+      data.password = await hashPassword(data.password);
+    }
+    return super.create(data);
+  }
 
   async getUsersByTenant(tenantId: number): Promise<User[]> {
     try {

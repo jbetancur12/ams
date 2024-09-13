@@ -2,12 +2,9 @@ import { RoleType } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 
 export function authorizeRoles(roles?: RoleType[]) {
-  
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
-   
-    const tenantId = (req as any).body.tenantId || (req as any).params.tenantId; // Asume que el tenantId puede venir en el body o en los params
-
+    const ownerId = (req as any).body.ownerId || (req as any).params.ownerId; // Asume que el ownerId puede venir en el body o en los params
     if (!user) {
       return res.status(401).json({ message: 'No autenticado' });
     }
@@ -19,11 +16,11 @@ export function authorizeRoles(roles?: RoleType[]) {
 
     // Si el rol del usuario está en la lista de roles permitidos
     if (roles && roles.includes(user.role)) {
-      // Si no es Platform Admin, verificar que el tenantId coincida
-      if (user.tenantId === tenantId) {
+      // Si no es Platform Admin, verificar que el ownerId coincida
+      if (user.ownerId === Number(ownerId)) {
         return next();
       } else {
-        return res.status(403).json({ message: 'No tienes permiso para acceder a este tenant' });
+        return res.status(403).json({ message: 'No tienes permiso para acceder a este owner' });
       }
     }
 

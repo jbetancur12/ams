@@ -32,6 +32,7 @@ export const loginAdmin = async (req: Request, res: Response, next: NextFunction
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
+
   try {
     const token = await authService.login(email, password);
     if (!token) {
