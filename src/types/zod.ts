@@ -1,4 +1,4 @@
-import { RoleType } from '@prisma/client';
+import { PropertyType, RoleType } from '@prisma/client';
 import { z } from 'zod';
 
 export const tenantSchema = z.object({
@@ -22,4 +22,9 @@ export const ownerUserSchema = ownerSchema.extend({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   role: z.enum([RoleType.OWNER, RoleType.OWNER_ADMIN]),
+});
+
+export const propertySchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  type: z.enum([PropertyType.HOUSE, PropertyType.BUILDING, PropertyType.COMMERCIAL, PropertyType.MIXED]),
 });
