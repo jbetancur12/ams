@@ -209,6 +209,7 @@ enum UnitType {
   LOCAL
   GARAGE
   ROOM
+  HOUSE
 }
 
 enum MaintenanceStatus {
