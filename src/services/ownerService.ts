@@ -8,6 +8,16 @@ export class OwnerService extends BaseService<Owner, Prisma.OwnerCreateInput, Pr
     super(db, db.owner);
   }
 
+  async getAllOwners(): Promise<Owner[]> {
+    try {
+      return await db.owner.findMany({
+        include: { properties: true },
+      });
+    } catch (error: any) {
+      throw new Error(`Error obteniendo los owners: ${error.message}`);
+    }
+  }
+
   // Método para eliminar Owner y sus usuarios asociados
   async deleteOwnerAndRelatedUsers(ownerId: number): Promise<void> {
     try {

@@ -8,6 +8,16 @@ export class PropertyService extends BaseService<Property, Prisma.PropertyCreate
   constructor() {
     super(db, db.property);
   }
+
+  async getAllProperties(ownerId: number): Promise<Property[]> {
+    try {
+      return await db.property.findMany({
+        where: { ownerId: ownerId },
+      });
+    } catch (error: any) {
+      throw new Error(`Error obteniendo los tenants: ${error.message}`);
+    }
+  }
   //   async getAllbyOwnerId(ownerId: number): Promise<Property[]> {
   //     try {
   //       return await db.tenant.findMany({

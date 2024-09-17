@@ -12,7 +12,7 @@ const ownerUserService = new OwnerUserService();
 
 export const getOwners = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const owners = await ownerService.getAll();
+    const owners = await ownerService.getAllOwners();
     return res.status(200).json(owners);
   } catch (error) {
     next(error);
