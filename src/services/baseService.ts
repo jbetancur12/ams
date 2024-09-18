@@ -15,9 +15,9 @@ export class BaseService<T, CInput, UInput> {
     return await this.model.create({ data });
   }
 
-  async getAll(): Promise<T[]> {
+  async getAll(filter?: any): Promise<T[]> {
     try {
-      return await this.model.findMany();
+      return await this.model.findMany(filter);
     } catch (error: any) {
       throw new Error(`Error obteniendo recursos: ${error.message}`);
     }

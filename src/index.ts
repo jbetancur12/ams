@@ -16,6 +16,7 @@ import tenantRoutes from './routes/tenant.routes';
 import ownerRoutes from './routes/ownerRoutes';
 import ownerUserRoutes from './routes/ownerUser.routes';
 import propertyRoutes from './routes/property.routes';
+import unitsRoutes from './routes/unit.routes';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -48,6 +49,7 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api/owners', ownerRoutes);
 app.use('/api/owners-users', ownerUserRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/units', unitsRoutes);
 
 // Middleware de manejo de errores
 app.use(errorHandler);
