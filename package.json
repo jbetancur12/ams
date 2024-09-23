@@ -14,7 +14,9 @@
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "lint": "eslint --ext .ts src/",
     "commit": "git-cz",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:unit": "vitest -c ./vitest.config.unit.ts",
+    "test:unit:ui": "vitest -c ./vitest.config.unit.ts --ui"
   },
   "keywords": [],
   "author": "",
@@ -48,6 +50,7 @@
     "@types/node": "^22.5.4",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
     "@typescript-eslint/parser": "^8.5.0",
+    "@vitest/ui": "^2.1.1",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
     "esbuild-register": "^3.6.0",
@@ -59,7 +62,9 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
-    "tsconfig-paths-webpack-plugin": "^4.1.0"
+    "tsconfig-paths-webpack-plugin": "^4.1.0",
+    "vitest": "^2.1.1",
+    "vitest-mock-extended": "^2.0.2"
   },
   "lint-staged": {
     "*.ts": [

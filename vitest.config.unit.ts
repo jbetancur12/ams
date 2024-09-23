@@ -1,0 +1,12 @@
+// vitest.config.unit.ts
+
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    include: ['src/**/*.test.ts'],
+    api: {
+      port: 3002,
+    },
+  },
+});
