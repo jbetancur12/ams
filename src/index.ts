@@ -4,7 +4,7 @@ import express from 'express';
 import cors from 'cors';
 
 import logger from './utils/logger';
-import authRoutes from './routes/authRoutes';
+import authRoutes from './routes/auth.routes';
 
 import { errorHandler } from './middlewares/errorMiddleware';
 import cookieParser from 'cookie-parser';
