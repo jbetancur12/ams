@@ -13,6 +13,7 @@ export class PropertyService extends BaseService<Property, Prisma.PropertyCreate
     try {
       return await db.property.findMany({
         where: { ownerId: ownerId },
+        include: { units: true },
       });
     } catch (error: any) {
       throw new Error(`Error obteniendo los tenants: ${error.message}`);
