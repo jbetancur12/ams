@@ -12,6 +12,9 @@ export class TenantService extends BaseService<Tenant, Prisma.TenantCreateInput,
     try {
       return await db.tenant.findMany({
         where: { ownerId },
+        include: {
+          units: true,
+        },
       });
     } catch (error: any) {
       throw new Error(`Error obteniendo los tenants: ${error.message}`);

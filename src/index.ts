@@ -9,7 +9,7 @@ import authRoutes from './routes/auth.routes';
 import { errorHandler } from './middlewares/errorMiddleware';
 import cookieParser from 'cookie-parser';
 
-import rentalRoutes from './routes/rentalRoutes';
+import rentalRoutes from './routes/rental.routes';
 import maintenanceRoutes from './routes/maintenanceRoutes';
 import userRoutes from './routes/user.routes';
 import tenantRoutes from './routes/tenant.routes';

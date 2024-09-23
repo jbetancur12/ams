@@ -95,6 +95,7 @@ model Unit {
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   tenantId           Int?
+  status             UnitStatus           @default(AVAILABLE)
   MaintenanceRequest MaintenanceRequest[]
   Rental             Rental[]
   services           Service[]
@@ -229,4 +230,11 @@ enum RoleType {
   OWNER
   OWNER_ADMIN
   TENANT
+}
+
+enum UnitStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+  RESERVED
 }

@@ -32,3 +32,11 @@ export const propertySchema = z.object({
 export const unitSchema = z.object({
   type: z.enum([UnitType.APARTMENT, UnitType.LOCAL, UnitType.GARAGE, UnitType.ROOM]),
 });
+
+export const rentalSchema = z.object({
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+  rentAmount: z.number().min(1, 'Rent amount is required'),
+  unitId: z.number().min(1, 'Unit id is required'),
+  tenantId: z.number().min(1, 'Tenant id is required'),
+});
